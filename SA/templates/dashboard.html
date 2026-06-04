@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StudyFlow Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-[#0d1a2e] text-white font-sans">
+
+    <div id="particles-js" class="absolute top-0 left-0 w-full h-full z-0"></div>
+
+    <div class="relative z-10 flex h-screen overflow-hidden">
+        <aside class="w-64 bg-[#0b1628]/80 backdrop-blur-lg p-6 flex-shrink-0">
+            <div class="flex items-center mb-10">
+                <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="Brain Logo" class="w-8 h-8 mr-2 rounded-md">
+                <h1 class="text-xl font-bold">StudyFlow</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'dashboard' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-home w-6 text-center"></i><span class="ml-4">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('analytics') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'analytics' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-chart-pie w-6 text-center"></i><span class="ml-4">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('goals') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'goals' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bullseye w-6 text-center"></i><span class="ml-4">Goals</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('calendar') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'calendar' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i><span class="ml-4">Calendar</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-book-open w-6 text-center"></i><span class="ml-4">Get Material</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('saved_materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'saved_materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bookmark w-6 text-center"></i><span class="ml-4">Saved Material</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_admin %}
+                    <li class="mt-8 mb-4 border-t border-gray-700 pt-4">
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-3 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition">
+                            <i class="fas fa-user-shield w-6 text-center"></i><span class="ml-4">Admin Panel</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="absolute bottom-6 left-6 right-6">
+                 <a href="{{ url_for('logout') }}" class="block w-full text-center p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                    <i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-2">Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">Welcome Back, {{ name.split(' ')[0] }}!</h2>
+                    <p class="text-gray-400">Here's your optimized study plan for today.</p>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <form action="{{ url_for('dashboard') }}" method="GET" class="relative">
+                        <input type="search" name="q" placeholder="Search tasks..." class="bg-gray-700/50 rounded-full py-1.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all w-32 focus:w-48" value="{{ search_query or '' }}">
+                        <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <div class="relative" id="notification-bell">
+                        <button class="text-gray-400 hover:text-white transition text-lg">
+                            <i class="fas fa-bell"></i>
+                            <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden"></span>
+                        </button>
+                        <div id="notification-dropdown" class="absolute right-0 mt-3 w-72 bg-[#1c2a3e] border border-gray-700 rounded-lg shadow-lg p-4 z-20 hidden">
+                            <p class="text-gray-400">No new notifications.</p>
+                        </div>
+                    </div>
+            <div class="flex items-center space-x-4"> <a href="{{ url_for('settings') }}" class="text-gray-400 hover:text-white transition text-xl" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </a>
+                 <a href="{{ url_for('profile') }}" class="flex items-center p-2 rounded-lg hover:bg-white/10 transition" title="View Profile">
+                    {% if current_user.avatar_url %}
+                        <img src="{{ current_user.avatar_url }}" alt="User Avatar" class="w-10 h-10 rounded-full object-cover mr-3">
+                    {% else %}
+                        <img src="https://i.pravatar.cc/40?u={{ name }}" alt="User Avatar" class="w-10 h-10 rounded-full mr-3">
+                    {% endif %}
+                    <h4 class="font-semibold">{{ name }}</h4>
+                </a>
+            </div>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="p-4 mb-4 text-sm {{ 'text-green-100 bg-green-500/30' if category == 'success' else 'text-red-100 bg-red-500/30' }} rounded-lg" role="alert">
+                            <span class="font-medium">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                     <div class="glass-card p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4">Manage Your Tasks</h3>
+                        <form action="{{ url_for('add_task') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                           <input type="text" name="content" placeholder="Task description (e.g., Read Chapter 5)" class="input-field" required>
+                           <input type="text" name="subject" placeholder="Subject (e.g., History)" class="input-field" required>
+                           <input type="date" name="deadline" class="input-field" required>
+                           <input type="number" step="0.5" name="estimated_hours" placeholder="Est. Hours (e.g., 2.5)" class="input-field" required>
+                           <select name="priority" class="input-field" required>
+                               <option value="" disabled selected>Priority</option>
+                               <option value="High">High</option>
+                               <option value="Medium">Medium</option>
+                               <option value="Low">Low</option>
+                           </select>
+                           <button type="submit" class="md:col-span-2 px-6 py-2 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg">
+                               <i class="fas fa-plus-circle mr-2"></i>Add Task & Optimize
+                           </button>
+                        </form>
+                        <div class="space-y-4">
+                            {% for task in tasks %}
+                            <div class="task-item bg-gray-800/60 p-4 rounded-lg flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <a href="{{ url_for('update_task', task_id=task.id) }}" class="mr-4" title="Mark as {{ 'incomplete' if task.completed else 'complete' }}">
+                                        {% if task.completed %}<i class="fas fa-check-circle text-green-400 text-xl"></i>{% else %}<i class="far fa-circle text-gray-400 text-xl hover:text-green-400 transition-colors"></i>{% endif %}
+                                    </a>
+                                    <div>
+                                        <p class="font-semibold {% if task.completed %}line-through text-gray-500{% endif %}">{{ task.content }}</p>
+                                        <p class="text-sm text-gray-400">Subject: {{ task.subject }} | Due: {{ task.deadline.strftime('%b %d') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm font-bold px-2 py-1 rounded-md {% if task.priority == 'High' %}bg-red-500/20 text-red-400{% elif task.priority == 'Medium' %}bg-yellow-500/20 text-yellow-400{% else %}bg-green-500/20 text-green-400{% endif %}">{{ task.priority }}</span>
+                                    <a href="{{ url_for('focus_session', task_id=task.id) }}" class="text-gray-400 hover:text-cyan-400" title="Start Focus Session"><i class="fas fa-clock"></i></a>
+                                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="text-gray-400 hover:text-cyan-400"><i class="fas fa-edit"></i></a>
+                                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if not tasks %}<p class="text-gray-400 text-center py-4">No tasks found. Add one to get started!</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-lg lg:col-span-1">
+                    <h3 class="text-xl font-bold mb-4">Your Optimized Schedule</h3>
+                    <div class="space-y-4">
+                        {% for item in schedule %}
+                        <a href="{{ url_for('guided_session', task_id=item.task_object.id) }}" class="block schedule-item bg-cyan-500/20 p-4 rounded-lg border-l-4 border-cyan-400 hover:bg-cyan-500/30 transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                            <p class="font-bold text-cyan-300">{{ item.day }}</p>
+                            <p class="text-gray-200 font-semibold">{{ item.task_object.content }} ({{ item.task_object.subject }})</p>
+                            <p class="text-sm text-gray-400">{{ item.details }}</p>
+                        </a>
+                        {% endfor %}
+                        {% if not schedule %}
+                        <div class="text-center py-10">
+                            <i class="fas fa-coffee text-4xl text-gray-500 mb-4"></i>
+                            <p class="text-gray-400">Your schedule is clear!</p>
+                            <p class="text-sm text-gray-500">Add a task to generate a plan.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="fixed bottom-8 right-8 z-50">
+        <button id="chat-bubble" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-2xl">
+            <i class="fas fa-robot"></i>
+        </button>
+        <div id="chat-window" class="hidden absolute bottom-20 right-0 w-80 h-96 bg-[#162235] border border-gray-700 rounded-xl shadow-2xl flex flex-col">
+            <div class="bg-gray-800/50 p-3 rounded-t-xl text-center font-semibold">
+                Chat with Flow
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+                <div class="flex">
+                    <div class="bg-cyan-500/20 text-white p-3 rounded-lg max-w-xs">
+                        Hi {{ name.split(' ')[0] }}! How can I help you study today?
+                    </div>
+                </div>
+            </div>
+            <div class="px-3 pb-2 text-xs text-center text-gray-400">
+            <label for="use-docs-toggle" class="flex items-center justify-center cursor-pointer">
+                <span class="mr-2">Chat with my saved documents</span>
+                <div class="relative">
+                    <input type="checkbox" id="use-docs-toggle" class="sr-only">
+                    <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                </div>
+            </label>
+            </div>
+            <form id="chat-form" class="p-3 border-t border-gray-700 flex items-center">
+                <input type="text" id="chat-input" placeholder="Ask a question..." class="input-field flex-1 text-sm">
+                <button type="submit" class="ml-2 px-4 py-2 rounded-md bg-cyan-500 hover:bg-cyan-600 font-semibold"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('hours-modal');
+        const form = document.getElementById('hours-form');
+        const cancelBtn = document.getElementById('cancel-hours');
+
+        // Logic for MANUALLY clicking the checkmark
+        document.querySelectorAll('.task-completion-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.dataset.completed === 'true') { return; }
+                e.preventDefault();
+                const taskId = link.dataset.taskId;
+                form.action = `/update/${taskId}`;
+                modal.classList.remove('hidden');
+            });
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        // --- SCRIPT TO AUTO-OPEN MODAL ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskToComplete = urlParams.get('complete_task');
+        
+        if (taskToComplete) {
+            form.action = `/update/${taskToComplete}`;
+            modal.classList.remove('hidden');
+            // Clean the URL so refreshing doesn't re-open the modal
+            history.replaceState(null, '', '/dashboard');
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Study Plan: {{ task.content }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Entrance animation for the cards */
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .plan-card {
+            animation: fade-in-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0; /* Start hidden for animation */
+        }
+        
+        /* General transition for all interactive elements */
+        .step, .plan-card, .step-checkbox {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Highlighting for the current active step */
+        .step.active {
+            border-color: #00c6ff;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.3), 0 0 5px rgba(0, 198, 255, 0.2);
+            transform: scale(1.03);
+        }
+        
+        /* Styling for completed steps */
+        .step.completed {
+            opacity: 0.5;
+            background-color: #0b1628 !important;
+            box-shadow: none;
+            transform: scale(1);
+        }
+        .step.completed .step-content {
+            text-decoration: line-through;
+            text-decoration-color: #4a5568;
+        }
+
+        /* Checkbox icon animation */
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .step-checkbox {
+            cursor: pointer;
+        }
+        .step-checkbox:not(.completed):hover {
+            color: #00c6ff;
+            transform: scale(1.2);
+        }
+        .step-checkbox.completed {
+            color: #28a745; /* Green checkmark */
+            cursor: default;
+            animation: pop-in 0.3s ease-out;
+        }
+
+        /* Hide scrollbar but allow scrolling */
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+    </style>
+</head>
+<body class="bg-[#0d1a2e] text-white font-sans">
+    <div class="relative z-10 flex h-screen overflow-hidden">
+        <aside class="w-64 bg-[#0b1628]/80 backdrop-blur-lg p-6 flex-shrink-0">
+            <div class="flex items-center mb-10">
+                <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="Brain Logo" class="w-8 h-8 mr-2 rounded-md">
+                <h1 class="text-xl font-bold">StudyFlow</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'dashboard' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-home w-6 text-center"></i><span class="ml-4">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('analytics') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'analytics' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-chart-pie w-6 text-center"></i><span class="ml-4">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('goals') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'goals' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bullseye w-6 text-center"></i><span class="ml-4">Goals</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('calendar') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'calendar' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i><span class="ml-4">Calendar</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-book-open w-6 text-center"></i><span class="ml-4">Get Material</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('saved_materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'saved_materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bookmark w-6 text-center"></i><span class="ml-4">Saved Material</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_admin %}
+                    <li class="mt-8 mb-4 border-t border-gray-700 pt-4">
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-3 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition">
+                            <i class="fas fa-user-shield w-6 text-center"></i><span class="ml-4">Admin Panel</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="absolute bottom-6 left-6 right-6">
+                 <a href="{{ url_for('logout') }}" class="block w-full text-center p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                    <i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-2">Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 flex flex-col overflow-hidden">
+            <header class="mb-6 text-center">
+                <p class="text-cyan-400 font-semibold">Your Guided Study Plan</p>
+                <h2 class="text-4xl font-bold mt-1">{{ task.content }}</h2>
+                <p class="text-gray-400 mt-2">Subject: {{ task.subject }} | Total Estimated Time: {{ task.estimated_hours }} hours</p>
+            </header>
+
+            <div class="w-full max-w-5xl mx-auto mb-6">
+                <div class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span>Session Progress</span>
+                    <span id="progress-text">0%</span>
+                </div>
+                <div class="w-full bg-gray-700/50 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="flex-1 flex items-center justify-start overflow-x-auto hide-scrollbar pb-8">
+                <div class="flex-none flex gap-8 px-8">
+                    {% for cycle in cycles %}
+                    <div class="plan-card w-80 bg-[#0b1628]/50 border border-gray-700 rounded-xl p-6 flex-none flex flex-col shadow-lg hover:shadow-cyan-500/10" style="animation-delay: {{ loop.index0 * 150 }}ms;">
+                        <h3 class="font-bold text-xl mb-4 text-gray-300 border-b border-gray-700 pb-3">Pomodoro Cycle {{ loop.index }}</h3>
+                        <div class="space-y-4">
+                            <div class="step p-4 rounded-lg bg-gray-800/50 border border-transparent">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4 step-content">
+                                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                                            <i class="fas fa-brain text-cyan-300"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold">Focus Session</p>
+                                            <p class="text-sm text-gray-400">{{ cycle.work }} minutes</p>
+                                        </div>
+                                    </div>
+                                    <i class="far fa-circle-check text-2xl text-gray-600 step-checkbox"></i>
+                                </div>
+                            </div>
+                             {% if cycle.break > 0 %}
+                            <div class="step p-4 rounded-lg bg-gray-800/50 border border-transparent">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4 step-content">
+                                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center">
+                                            <i class="fas fa-coffee text-gray-400"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold">{{ cycle.break_type }}</p>
+                                            <p class="text-sm text-gray-400">{{ cycle.break }} minutes</p>
+                                        </div>
+                                    </div>
+                                    <i class="far fa-circle-check text-2xl text-gray-600 step-checkbox"></i>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div id="final-card" class="plan-card w-80 bg-green-500/10 border border-green-500/50 rounded-xl p-6 flex-none flex-col items-center justify-center text-center hidden" style="animation-delay: {{ cycles|length * 150 }}ms;">
+                        <i class="fas fa-check-double text-5xl text-green-400 mb-4"></i>
+                        <h3 class="font-bold text-xl">Session Complete!</h3>
+                        <p class="text-gray-400 mt-2">Great work. You've finished the plan for this task.</p>
+                        <button id="complete-task-btn" class="mt-6 px-6 py-2 rounded-md bg-cyan-500 hover:bg-cyan-600 font-semibold">Mark Task as Done</button>
+                    </div>
+                </div>
+            </div>
+             <div class="fixed bottom-8 right-8 z-50">
+                <a href="{{ url_for('focus_session', task_id=task.id) }}" class="flex items-center justify-center px-6 py-4 rounded-full bg-red-500 hover:bg-red-600 transition text-lg font-semibold shadow-2xl transform hover:scale-110">
+                    <i class="fas fa-play-circle mr-3"></i>Launch Timer
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    // This JavaScript is the same as the previous version and does not need to be changed.
+    // It handles the logic for saving progress and updating the UI state.
+    document.addEventListener('DOMContentLoaded', () => {
+        const steps = document.querySelectorAll('.step');
+        const totalSteps = steps.length;
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const finalCard = document.getElementById('final-card');
+        const completeTaskBtn = document.getElementById('complete-task-btn');
+        const taskId = {{ task.id }};
+        let completedSteps = {{ completed_steps|default(0) }};
+
+        function saveProgress() {
+            fetch('/api/session/progress/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task_id: taskId, completed_steps: completedSteps })
+            });
+        }
+
+        function updateUI() {
+            steps.forEach((step, index) => {
+                const checkbox = step.querySelector('.step-checkbox');
+                const isCompleted = index < completedSteps;
+                step.classList.toggle('completed', isCompleted);
+                checkbox.classList.toggle('completed', isCompleted);
+                checkbox.classList.toggle('fas', isCompleted);
+                checkbox.classList.toggle('fa-check-circle', isCompleted);
+                checkbox.classList.toggle('far', !isCompleted);
+                checkbox.classList.toggle('fa-circle-check', !isCompleted);
+                step.classList.remove('active');
+            });
+            const percentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.round(percentage)}%`;
+            if (completedSteps < totalSteps) {
+                steps[completedSteps].classList.add('active');
+                finalCard.classList.add('hidden');
+                finalCard.classList.remove('flex');
+            } else {
+                finalCard.classList.remove('hidden');
+                finalCard.classList.add('flex');
+            }
+        }
+
+        steps.forEach((step, index) => {
+            const checkbox = step.querySelector('.step-checkbox');
+            checkbox.addEventListener('click', () => {
+                if (index === completedSteps) {
+                    completedSteps++;
+                    saveProgress();
+                    updateUI();
+                }
+            });
+        });
+
+        completeTaskBtn.addEventListener('click', () => {
+            window.location.href = `/dashboard?complete_task=${taskId}`;
+        });
+
+        updateUI();
+    });
+    </script>
+</body>
+</html>

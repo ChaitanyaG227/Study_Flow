@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - StudyFlow Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Custom CSS for a clean, aligned grid */
+        .availability-grid {
+            display: grid;
+            grid-template-columns: min-content 1fr auto;
+            align-items: center;
+            gap: 1.5rem; /* 24px */
+        }
+        .time-inputs {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: 1rem;
+            justify-items: end;
+        }
+        /* Style for the native time picker icon */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-[#0d1a2e] text-white font-sans">
+    <div class="relative z-10 flex h-screen overflow-hidden">
+        <aside class="w-64 bg-[#0b1628]/80 backdrop-blur-lg p-6 flex-shrink-0">
+            <div class="flex items-center mb-10">
+                <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="Brain Logo" class="w-8 h-8 mr-2 rounded-md">
+                <h1 class="text-xl font-bold">StudyFlow</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'dashboard' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-home w-6 text-center"></i><span class="ml-4">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('analytics') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'analytics' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-chart-pie w-6 text-center"></i><span class="ml-4">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('goals') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'goals' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bullseye w-6 text-center"></i><span class="ml-4">Goals</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('calendar') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'calendar' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i><span class="ml-4">Calendar</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-book-open w-6 text-center"></i><span class="ml-4">Get Material</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('saved_materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'saved_materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bookmark w-6 text-center"></i><span class="ml-4">Saved Material</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_admin %}
+                    <li class="mt-8 mb-4 border-t border-gray-700 pt-4">
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-3 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition">
+                            <i class="fas fa-user-shield w-6 text-center"></i><span class="ml-4">Admin Panel</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="absolute bottom-6 left-6 right-6">
+                 <a href="{{ url_for('logout') }}" class="block w-full text-center p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                    <i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-2">Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">App Settings</h2>
+                    <p class="text-gray-400">Customize your StudyFlow experience.</p>
+                </div>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm {{ 'text-green-100 bg-green-500/30' if category == 'success' else 'text-red-100 bg-red-500/30' }} rounded-lg" role="alert">
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}{% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('settings') }}" method="POST">
+                <div class="glass-card p-8 rounded-lg">
+                    <fieldset>
+                        <legend class="text-xl font-bold mb-2">Pomodoro Settings</legend>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-gray-700 pb-8">
+                            <div>
+                                <label for="work_minutes" class="block text-sm font-medium text-gray-300 mb-1">Study Duration (mins)</label>
+                                <input type="number" name="work_minutes" id="work_minutes" value="{{ current_user.pomodoro_work_minutes }}" class="input-field" required>
+                            </div>
+                            <div>
+                                <label for="short_break" class="block text-sm font-medium text-gray-300 mb-1">Short Break (mins)</label>
+                                <input type="number" name="short_break" id="short_break" value="{{ current_user.pomodoro_short_break }}" class="input-field" required>
+                            </div>
+                            <div>
+                                <label for="long_break" class="block text-sm font-medium text-gray-300 mb-1">Long Break (mins)</label>
+                                <input type="number" name="long_break" id="long_break" value="{{ current_user.pomodoro_long_break }}" class="input-field" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend class="text-xl font-bold">Weekly Availability</legend>
+                        <p class="text-gray-400 mb-6">Set your unavailable times. The scheduler will avoid these blocks.</p>
+                        <div class="space-y-3">
+                            {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                            {% for i in range(7) %}
+                            <div class="availability-row p-4 rounded-lg transition-all duration-300 {% if availability[i].active %} bg-cyan-500/10 {% else %} bg-gray-800/40 opacity-70 {% endif %} availability-grid">
+                                <input type="checkbox" id="is_active_{{ days[i]|lower }}" name="is_active_{{ days[i]|lower }}" class="day-toggle h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 cursor-pointer" {% if availability[i].active %}checked{% endif %}>
+                                
+                                <div class="flex flex-col">
+                                    <label for="is_active_{{ days[i]|lower }}" class="font-semibold text-lg cursor-pointer">{{ days[i] }}</label>
+                                     {% if days[i] == 'Monday' %}
+                                        <button type="button" id="apply-to-weekdays" class="text-xs text-cyan-400 hover:text-cyan-200 transition text-left w-fit">Apply to all weekdays</button>
+                                     {% endif %}
+                                </div>
+                                
+                                <div class="time-inputs">
+                                    <div class="flex flex-col items-start">
+                                        <label class="text-sm text-gray-400">Start Time</label>
+                                        <input type="time" name="start_time_{{ days[i]|lower }}" value="{{ availability[i].start }}" class="time-input input-field text-sm p-2 w-32 bg-gray-900/50 transition-opacity" {% if not availability[i].active %}disabled{% endif %}>
+                                    </div>
+                                    <div class="flex flex-col items-start">
+                                        <label class="text-sm text-gray-400">End Time</label>
+                                        <input type="time" name="end_time_{{ days[i]|lower }}" value="{{ availability[i].end }}" class="time-input input-field text-sm p-2 w-32 bg-gray-900/50 transition-opacity" {% if not availability[i].active %}disabled{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+
+                    <div class="mt-8 flex justify-end">
+                        <button type="submit" class="px-8 py-3 rounded-md bg-cyan-500 hover:bg-cyan-600 transition font-semibold text-lg">Save Settings</button>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+    
+    <script>
+    // Toggles the disabled state and styling of a single availability row
+    function toggleRow(checkbox) {
+        const row = checkbox.closest('.availability-row');
+        const timeInputs = row.querySelectorAll('.time-input');
+        const isActive = checkbox.checked;
+
+        row.classList.toggle('opacity-70', !isActive);
+        row.classList.toggle('bg-gray-800/40', !isActive);
+        row.classList.toggle('bg-cyan-500/10', isActive);
+        timeInputs.forEach(input => {
+            input.disabled = !isActive;
+            input.classList.toggle('opacity-50', !isActive);
+        });
+    }
+
+    // Add event listener to all day checkboxes
+    document.querySelectorAll('.day-toggle').forEach(checkbox => {
+        checkbox.addEventListener('change', () => toggleRow(checkbox));
+    });
+
+    // Add event listener for the "Apply to all Weekdays" button
+    document.getElementById('apply-to-weekdays').addEventListener('click', () => {
+        const mondayRow = document.querySelector('.availability-row'); // The first row is Monday
+        const mondayStart = mondayRow.querySelector('input[name="start_time_monday"]').value;
+        const mondayEnd = mondayRow.querySelector('input[name="end_time_monday"]').value;
+
+        // Loop through Tuesday (1) to Friday (4)
+        const allRows = document.querySelectorAll('.availability-row');
+        for (let i = 1; i < 5; i++) {
+            const row = allRows[i];
+            const checkbox = row.querySelector('.day-toggle');
+            const startInput = row.querySelector('.time-input[name^="start_time"]');
+            const endInput = row.querySelector('.time-input[name^="end_time"]');
+
+            checkbox.checked = true;
+            startInput.value = mondayStart;
+            endInput.value = mondayEnd;
+            toggleRow(checkbox); // Apply styling and enable inputs
+        }
+    });
+    </script>
+</body>
+</html>

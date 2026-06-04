@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saved Material - StudyFlow Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-[#0d1a2e] text-white font-sans">
+    <div class="relative z-10 flex h-screen overflow-hidden">
+<aside class="w-64 bg-[#0b1628]/80 backdrop-blur-lg p-6 flex-shrink-0">
+            <div class="flex items-center mb-10">
+                <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="Brain Logo" class="w-8 h-8 mr-2 rounded-md">
+                <h1 class="text-xl font-bold">StudyFlow</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'dashboard' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-home w-6 text-center"></i><span class="ml-4">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('analytics') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'analytics' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-chart-pie w-6 text-center"></i><span class="ml-4">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('goals') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'goals' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bullseye w-6 text-center"></i><span class="ml-4">Goals</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('calendar') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'calendar' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i><span class="ml-4">Calendar</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-book-open w-6 text-center"></i><span class="ml-4">Get Material</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('saved_materials') }}" class="flex items-center p-3 rounded-lg {% if request.endpoint == 'saved_materials' %}bg-cyan-500/20 text-cyan-400{% else %}hover:bg-white/10{% endif %} transition">
+                            <i class="fas fa-bookmark w-6 text-center"></i><span class="ml-4">Saved Material</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_admin %}
+                    <li class="mt-8 mb-4 border-t border-gray-700 pt-4">
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-3 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition">
+                            <i class="fas fa-user-shield w-6 text-center"></i><span class="ml-4">Admin Panel</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="absolute bottom-6 left-6 right-6">
+                 <a href="{{ url_for('logout') }}" class="block w-full text-center p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 transition">
+                    <i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-2">Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold">Your Saved Material</h2>
+                <p class="text-gray-400">Quick access to your bookmarked study notes.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for material in materials %}
+                <div class="glass-card rounded-lg flex flex-col">
+                    <div class="p-5 flex-grow">
+                        <p class="text-xs text-cyan-400">{{ material.user_class }}</p>
+                        <h4 class="text-lg font-bold mb-2">{{ material.subject }}</h4>
+                        <p class="text-sm text-gray-400 mb-3">{{ material.description or 'No description provided.' }}</p>
+                        <p class="text-xs text-gray-500">By: {{ material.uploader.name }}</p>
+                    </div>
+                    <div class="bg-gray-700/50 p-3 flex justify-between items-center">
+                        <a href="{{ url_for('static', filename='materials/' + material.filename) }}" target="_blank" class="text-sm hover:text-cyan-400">View PDF <i class="fas fa-external-link-alt ml-1"></i></a>
+                        <a href="{{ url_for('unsave_material', material_id=material.id) }}" class="text-xl text-cyan-500 hover:text-red-500" title="Unsave"><i class="fas fa-bookmark"></i></a>
+                    </div>
+                </div>
+                {% else %}
+                <p class="lg:col-span-3 text-center text-gray-400 py-12">You haven't saved any materials yet. Browse the "Get Material" section to start a collection!</p>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,438 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --primary-bg: #0d1a2e;
+    --secondary-bg: #1c2a3e;
+    --sidebar-bg: #0b1628;
+    --card-bg: #162235;
+    --border-color: #2a3a50;
+    --text-primary: #e0e0e0;
+    --text-secondary: #8a99b0;
+    --accent-cyan: #00c6ff;
+    --accent-blue: #0072ff;
+    --priority-high: #ff4b2b;
+    --priority-medium: #ffc107;
+    --priority-low: #28a745;
+    --success: #28a745;
+    --error: #dc3545;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.dashboard-body {
+    background-color: var(--primary-bg);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* --- Dashboard Layout --- */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    overflow-y: auto;
+}
+
+/* --- Sidebar --- */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+.sidebar-logo {
+    font-size: 2rem;
+    color: var(--accent-cyan);
+}
+.sidebar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+}
+.sidebar-nav {
+    flex-grow: 1;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: background-color 0.3s, color 0.3s;
+}
+.nav-item:hover {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+.nav-item.active {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.2);
+}
+.nav-icon {
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+    margin-right: 1rem;
+}
+.sidebar-footer {
+    margin-top: auto;
+}
+.logout-btn {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+.logout-btn:hover {
+    background-color: var(--error);
+    color: #fff;
+}
+
+/* --- Main Content Header --- */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.header-text h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+}
+.header-text p {
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+.profile-icon {
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+}
+
+/* --- Card Styles --- */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.card-icon {
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
+    color: var(--accent-cyan);
+}
+.card-content {
+    padding: 1.25rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* --- Grid Layout --- */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    height: calc(100% - 100px); /* Adjust based on header height */
+}
+
+/* --- Form Styles --- */
+.task-form .form-group {
+    margin-bottom: 1rem;
+}
+.task-form label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+.task-form input, .task-form select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background-color: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.task-form input:focus, .task-form select:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+}
+.form-group-inline {
+    display: flex;
+    gap: 1rem;
+}
+.btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 198, 255, 0.3);
+}
+
+/* --- Task List Styles --- */
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--secondary-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.task-item.completed .task-content {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+.task-info {
+    display: flex;
+    align-items: center;
+}
+.task-priority-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+.priority-high { background-color: var(--priority-high); }
+.priority-medium { background-color: var(--priority-medium); }
+.priority-low { background-color: var(--priority-low); }
+.task-content { margin: 0; }
+.task-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.action-btn {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+.action-btn.complete-btn:hover { color: var(--success); }
+.action-btn.delete-btn:hover { color: var(--error); }
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+/* --- Schedule List Styles --- */
+.schedule-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.schedule-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.schedule-item:last-child {
+    border-bottom: none;
+}
+.schedule-day {
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 0.25rem;
+}
+.schedule-details p {
+    margin: 0;
+    font-weight: 500;
+}
+.schedule-details small {
+    color: var(--text-secondary);
+}
+
+/* --- Flash Messages --- */
+.flash-container {
+    margin-bottom: 1.5rem;
+}
+.flash-dashboard {
+    padding: 1rem;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+}
+.flash-dashboard.success {
+    background-color: rgba(40, 167, 69, 0.5);
+    border: 1px solid var(--success);
+}
+.flash-dashboard.error {
+    background-color: rgba(220, 53, 69, 0.5);
+    border: 1px solid var(--error);
+}
+
+/* --- Appended Styles from User --- */
+
+/* General Body and Font styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0d1a2e;
+    color: #e0e0e0;
+}
+
+/* Background Particles */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* Content wrapper to be above particles */
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+/* Glassmorphism Card Effect */
+.glass-card {
+    background: rgba(11, 22, 40, 0.6); /* Slightly darker and more opaque */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    background: rgba(11, 22, 40, 0.8);
+    border-color: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 255, 255, 0.1), 0 4px 6px -2px rgba(0, 255, 255, 0.05);
+}
+
+/* Custom Input Field styles for Dashboard */
+.input-field {
+    background-color: #1c2a3e;
+    border: 1px solid #2c3e50;
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: #fff;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #00c6ff;
+    box-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+}
+
+/* Custom styles for Task Items */
+.task-item:hover {
+    background-color: rgba(30, 41, 59, 0.8); /* a bit lighter on hover */
+    transform: translateX(5px);
+}
+
+/* Custom Checkbox for Tasks */
+.task-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #4a5568;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+.task-checkbox:checked {
+    background-color: #00c6ff;
+    border-color: #00c6ff;
+}
+.task-checkbox:checked::after {
+    content: '\f00c'; /* FontAwesome check icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #0d1a2e;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+}
+
+/* Style for Schedule Items */
+.schedule-item {
+    border-left: 4px solid #00c6ff;
+}
+
+/* AOS animation styles (from your original file) */
+[data-aos] {
+    opacity: 0;
+    transition-property: opacity, transform;
+}
+/* For AI Chatbot Toggle */
+input:checked ~ .dot {
+    transform: translateX(100%);
+    background-color: #00c6ff;
+}

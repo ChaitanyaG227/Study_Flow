@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Approve Materials</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-[#0d1a2e] text-white font-sans">
+    <div class="relative z-10 flex h-screen overflow-hidden">
+        <aside class="w-64 bg-[#0b1628]/80 backdrop-blur-lg p-6 flex-shrink-0">
+            <h1 class="text-xl font-bold mb-10">Admin Panel</h1>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center p-3 rounded-lg bg-cyan-500/20 text-cyan-400">
+                            <i class="fas fa-check-circle w-6 text-center"></i><span class="ml-4">Approve Notes</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="flex items-center p-3 rounded-lg hover:bg-white/10">
+                            <i class="fas fa-arrow-left w-6 text-center"></i><span class="ml-4">Back to App</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold">Pending Materials for Approval</h2>
+                <p class="text-gray-400">Review and approve user-submitted study notes.</p>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm {{ 'text-green-100 bg-green-500/30' if category == 'success' else 'text-red-100 bg-red-500/30' }} rounded-lg" role="alert">
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}{% endif %}
+            {% endwith %}
+            
+            <div class="glass-card p-4 rounded-lg">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-cyan-300 uppercase bg-gray-700/50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Subject & File</th>
+                                <th scope="col" class="px-6 py-3">Uploader</th>
+                                <th scope="col" class="px-6 py-3">Class</th>
+                                <th scope="col" class="px-6 py-3">Date</th>
+                                <th scope="col" class="px-6 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for material in materials %}
+                            <tr class="border-b border-gray-700">
+                                <td class="px-6 py-4">
+                                    <p class="font-semibold">{{ material.subject }}</p>
+                                    <p class="text-xs text-gray-400">{{ material.filename }}</p>
+                                </td>
+                                <td class="px-6 py-4">{{ material.uploader.name }}</td>
+                                <td class="px-6 py-4">{{ material.user_class }}</td>
+                                <td class="px-6 py-4">{{ material.upload_date.strftime('%b %d, %Y') }}</td>
+                                <td class="px-6 py-4 flex space-x-2">
+                                    <a href="{{ url_for('approve_material', material_id=material.id) }}" class="font-medium text-green-400 hover:underline">Approve</a>
+                                    <a href="{{ url_for('delete_material', material_id=material.id) }}" class="font-medium text-red-400 hover:underline">Delete</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center py-8 text-gray-400">No pending materials to review.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
