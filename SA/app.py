@@ -1,9 +1,8 @@
-
+import os
 from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from datetime import datetime, date, timedelta
 from sqlalchemy import or_
 from sqlalchemy import Table
@@ -22,13 +21,13 @@ app = Flask(__name__,
             template_folder=os.path.abspath('templates'),
             static_folder=os.path.abspath('static'))
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/materials')
-app.config['SECRET_KEY'] = 'a-very-secret-key-that-should-be-changed'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-123')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///local.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['AVATAR_UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/avatars')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 genai.configure(api_key=GEMINI_API_KEY)
 # Load the model for creating embeddings
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
